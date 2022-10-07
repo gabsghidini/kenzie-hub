@@ -1,5 +1,5 @@
 import HubRoutes from "./Routes/HubRoutes";
-import Global from "./styles/global";
+import Global from "./Styles/global";
 
 function App() {
 	return (
