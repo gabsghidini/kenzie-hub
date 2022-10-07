@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 /* Router Dom */
 import { useNavigate } from "react-router-dom";
 /* Styles */
@@ -8,31 +7,22 @@ import * as S from "./styles";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 /* Form */
-import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 /* API */
 import API from "../../Services/API";
+import { loginSchema } from "../../Validations/loginValidation";
 
 const Login = () => {
 	const navigate = useNavigate();
-	//const [user, setUser] = useState({});
 
 	/* Forms */
-	const formSchema = yup.object().shape({
-		email: yup
-			.string()
-			.email("Email inválido")
-			.required("Email obrigatório"),
-		password: yup.string().required("Senha obrigatória"),
-	});
-
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
-		resolver: yupResolver(formSchema),
+		resolver: yupResolver(loginSchema),
 	});
 
 	const onSubmitFunction = (data) => {
