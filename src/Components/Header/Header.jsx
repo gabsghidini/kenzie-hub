@@ -6,12 +6,12 @@ const Header = () => {
 	const module = user.course_module;
 
 	return (
-		<S.Header>
-			<S.Container>
+		<S.Container>
+			<S.Header>
 				<h1>Olá, {name}</h1>
 				<p>{module}</p>
-			</S.Container>
-		</S.Header>
+			</S.Header>
+		</S.Container>
 	);
 };
 
