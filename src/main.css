@@ -1,6 +1,10 @@
+body {
+	margin: 0;
+}
+
 #root {
-	width: 95vw;
-	min-height: 95vh;
+	width: 99vw;
+	min-height: 99vh;
 	display: grid;
 	place-items: center;
 

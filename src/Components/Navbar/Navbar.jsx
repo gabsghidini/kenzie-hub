@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import logo from "../../Assets/hub.png";
 import * as S from "./styles";
 
 const Navbar = () => {
@@ -8,9 +9,9 @@ const Navbar = () => {
 		return navigate("/");
 	};
 	return (
-		<S.Nav>
-			<S.Container>
-				<img src="./assets/img/Logo.svg" alt="Kenzie Hub" />
+		<S.NavContainer>
+			<S.Nav>
+				<img src={logo} alt="Kenzie Hub" />
 				<S.Logout
 					onClick={() => {
 						localStorage.clear();
@@ -19,8 +20,8 @@ const Navbar = () => {
 				>
 					Logout
 				</S.Logout>
-			</S.Container>
-		</S.Nav>
+			</S.Nav>
+		</S.NavContainer>
 	);
 };
 
