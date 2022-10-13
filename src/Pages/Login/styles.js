@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 export const Wrapper = styled.div`
 	display: flex;
@@ -74,7 +75,10 @@ export const LoginButton = styled.button`
 	}
 `;
 
-export const RegisterButton = styled.button`
+export const RegisterButton = styled(Link)`
+	font-family: "Inter", sans-serif;
+	font-size: 0.75rem;
+
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
@@ -90,6 +94,7 @@ export const RegisterButton = styled.button`
 	border-radius: 0.25rem;
 
 	transition: 200ms;
+	text-decoration: none;
 
 	:hover {
 		background-color: var(--grey-2);

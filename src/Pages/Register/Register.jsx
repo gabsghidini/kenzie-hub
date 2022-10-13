@@ -1,18 +1,19 @@
+import { useContext } from "react";
+import { UserContext } from "../../Contexts/UserContext";
+/* Styles */
 import Logo from "../../Assets/hub.png";
 import * as S from "./styles";
-import { useNavigate } from "react-router-dom";
 /* Toasts */
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 /* Form */
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 /* API */
-import API from "../../Services/API";
 import { registerSchema } from "../../Validations/registerValidation";
 
 const Register = () => {
-	const navigate = useNavigate();
+	const { userRegister } = useContext(UserContext);
 	/* Forms */
 	const {
 		register,
@@ -22,47 +23,10 @@ const Register = () => {
 		resolver: yupResolver(registerSchema),
 	});
 
-	const handleRedirect = (redirectTo) => {
-		navigate(`/${redirectTo}`);
-	};
-
 	const onSubmitFunction = (data) => {
 		userRegister(data);
 	};
 
-	function userRegister(user) {
-		API.post("/users", user)
-			.then((res) => {
-				localStorage.clear();
-				localStorage.setItem("@User", res.data.user);
-				showSuccessToast();
-
-				setTimeout(() => {
-					handleRedirect("");
-				}, 3000);
-			})
-			.catch((error) =>
-				showErrorToast(
-					"Opa, verifique se todos os campos estão preenchidos ou se o email já não existe."
-				)
-			);
-	}
-
-	/* Toasts functions */
-	const showErrorToast = (error) => {
-		toast.error(`${error}`, {
-			position: toast.POSITION.TOP_CENTER,
-		});
-	};
-
-	const showSuccessToast = () => {
-		toast.success(
-			"Registro feito com sucesso, você será redirecionado ao login em até 3 segundos.",
-			{
-				position: toast.POSITION.TOP_CENTER,
-			}
-		);
-	};
 	return (
 		<S.Wrapper>
 			<img src={Logo} alt="Kenzie Hub logo" />
@@ -130,9 +94,7 @@ const Register = () => {
 				<S.HeadlineBoldSmall className="bold">
 					Já possui uma conta?
 				</S.HeadlineBoldSmall>
-				<S.RegisterButton onClick={() => handleRedirect("")}>
-					Faça Login
-				</S.RegisterButton>
+				<S.RegisterButton to="/">Faça Login</S.RegisterButton>
 			</S.Form>
 			<ToastContainer />
 		</S.Wrapper>
