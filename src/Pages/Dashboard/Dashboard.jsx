@@ -1,5 +1,6 @@
 import Navbar from "../../Components/Navbar";
 import Header from "../../Components/Header";
+import Techs from "../../Components/Techs";
 import { Container } from "./styles";
 
 const Dashboard = () => {
@@ -7,6 +8,7 @@ const Dashboard = () => {
 		<Container>
 			<Navbar />
 			<Header />
+			<Techs />
 		</Container>
 	);
 };
