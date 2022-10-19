@@ -10,11 +10,19 @@ import { yupResolver } from "@hookform/resolvers/yup";
 /* Schema */
 import { loginSchema } from "../../Validations/loginValidation";
 /* Context */
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { UserContext } from "../../Contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
 	const { userLogin } = useContext(UserContext);
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (localStorage.getItem("@TOKEN")) {
+			navigate("/dashboard");
+		}
+	}, []);
 
 	/* Forms */
 	const {
