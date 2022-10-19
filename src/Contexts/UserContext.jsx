@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../Services/API";
@@ -6,12 +6,36 @@ import API from "../Services/API";
 export const UserContext = createContext({});
 
 const UserProvider = ({ children }) => {
+	const [user, setUser] = useState(null);
 	const [token, setToken] = useState(null);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const config = {
 		headers: { Authorization: `Bearer ${token}` },
 	};
+	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		async function updateUser() {
+			const storageToken = localStorage.getItem("@TOKEN");
+
+			if (storageToken) {
+				try {
+					API.defaults.headers.Authorization = `Bearer ${storageToken}`;
+
+					const { data } = await API.get("/profile");
+
+					setUser(data);
+				} catch (error) {
+					console.error(error);
+				}
+			}
+
+			setLoading(false);
+		}
+
+		updateUser();
+	}, []);
 
 	/* Toasts functions */
 	const showErrorToast = (error) => {
@@ -42,6 +66,7 @@ const UserProvider = ({ children }) => {
 				const userID = user.id;
 				const techs = user.techs;
 				setToken(token);
+				setUser(user);
 
 				localStorage.setItem("@User", JSON.stringify(user));
 				localStorage.setItem("@TOKEN", token);
@@ -100,12 +125,11 @@ const UserProvider = ({ children }) => {
 			.catch((error) => console.error(error));
 	}
 
-	function updateTechs(message) {
+	function updateTechs() {
 		setIsUpdating(true);
 		API.get("/profile", config).then(
 			(res) => console.log(res),
 			localStorage.setItem("@Techs", JSON.stringify(res.data.techs)),
-			//showSuccessToast(message),
 			setIsUpdating(false)
 		);
 	}
@@ -113,6 +137,7 @@ const UserProvider = ({ children }) => {
 	return (
 		<UserContext.Provider
 			value={{
+				user,
 				showErrorToast,
 				showSuccessToast,
 				handleRedirect,
@@ -122,6 +147,7 @@ const UserProvider = ({ children }) => {
 				deleteTech,
 				updateTechs,
 				isUpdating,
+				loading,
 			}}
 		>
 			{children}
