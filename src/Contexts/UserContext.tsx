@@ -2,13 +2,18 @@ import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../Services/API";
+import React from "react";
+import * as i from "./types";
 
-export const UserContext = createContext({});
+export const UserContext = createContext<i.UserProviderData>(
+	{} as i.UserProviderData
+);
 
 const UserProvider = ({ children }) => {
-	const [user, setUser] = useState(null);
-	const [token, setToken] = useState(null);
+	const [user, setUser] = useState<i.User>({} as i.User);
+	const [token, setToken] = useState<string>();
 	const [isUpdating, setIsUpdating] = useState(false);
+
 	const config = {
 		headers: { Authorization: `Bearer ${token}` },
 	};
@@ -128,11 +133,14 @@ const UserProvider = ({ children }) => {
 
 	function updateTechs() {
 		setIsUpdating(true);
-		API.get("/profile", config).then(
-			(res) => console.log(res),
-			localStorage.setItem("@Techs", JSON.stringify(res.data.techs)),
-			setIsUpdating(false)
-		);
+		try {
+			API.get("/profile", config).then((res) =>
+				localStorage.setItem("@Techs", JSON.stringify(res.data.techs))
+			);
+			setIsUpdating(false);
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	return (
