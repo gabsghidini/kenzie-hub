@@ -67,9 +67,7 @@ const Techs = () => {
 					<S.Button type="submit">Adicionar nova Tech</S.Button>
 				</S.TechsContainer>
 			</Modal>
-			{loading ? (
-				<h1>Carregando...</h1>
-			) : (
+			{techs.length >= 1 ? (
 				<S.TechList>
 					{techs.map((tech) => (
 						<S.Tech key={tech.id}>
@@ -96,6 +94,8 @@ const Techs = () => {
 						</S.Tech>
 					))}
 				</S.TechList>
+			) : (
+				<h1>Nenhuma tecnologia cadastrada...</h1>
 			)}
 		</S.Main>
 	);

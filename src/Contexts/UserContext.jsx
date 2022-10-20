@@ -57,8 +57,8 @@ const UserProvider = ({ children }) => {
 
 	/* API */
 	function userLogin(user) {
-		API.post("/sessions", user)
-			.then((res) => {
+		try {
+			API.post("/sessions", user).then((res) => {
 				localStorage.clear();
 
 				const user = res.data.user;
@@ -79,13 +79,13 @@ const UserProvider = ({ children }) => {
 
 				setTimeout(() => {
 					handleRedirect("dashboard");
-				}, 5000);
-			})
-			.catch((error) =>
-				showErrorToast(
-					"Email ou senha incorretos, verifique os dados e tente novamente."
-				)
+				}, 3000);
+			});
+		} catch (error) {
+			showErrorToast(
+				"Email ou senha incorretos, verifique os dados e tente novamente."
 			);
+		}
 	}
 
 	function userRegister(user) {
@@ -109,20 +109,21 @@ const UserProvider = ({ children }) => {
 	}
 
 	const addTech = (tech) => {
-		API.post("/users/techs", tech, config)
-			.then((res) => {
-				console.log(res);
-				//showSuccessToast("Tecnologia adicionada com sucesso!");
-			})
-			.catch((error) => showErrorToast("Opa, algo deu errado."));
+		try {
+			API.post("/users/techs", tech, config);
+			//showSuccessToast("Tecnologia adicionada com sucesso!");
+		} catch (error) {
+			showErrorToast("Opa, algo deu errado.");
+		}
 	};
 
 	function deleteTech(id) {
-		API.delete(`/users/techs/${id}`, config)
-			.then((res) => {
-				console.log(res);
-			})
-			.catch((error) => console.error(error));
+		try {
+			API.delete(`/users/techs/${id}`, config);
+			showSuccessToast("Tecnologia deletada com sucesso!");
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	function updateTechs() {
