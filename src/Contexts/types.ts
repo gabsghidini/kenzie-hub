@@ -11,6 +11,10 @@ export interface User {
 	works: Works[];
 }
 
+export interface UserProviderProps {
+	children: React.ReactNode;
+}
+
 export interface Techs {}
 
 export interface Works {}

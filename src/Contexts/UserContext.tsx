@@ -9,7 +9,7 @@ export const UserContext = createContext<i.UserProviderData>(
 	{} as i.UserProviderData
 );
 
-const UserProvider = ({ children }) => {
+const UserProvider = ({ children }: i.UserProviderProps) => {
 	const [user, setUser] = useState<i.User>({} as i.User);
 	const [token, setToken] = useState<string>();
 	const [isUpdating, setIsUpdating] = useState(false);
@@ -43,25 +43,25 @@ const UserProvider = ({ children }) => {
 	}, []);
 
 	/* Toasts functions */
-	const showErrorToast = (error) => {
+	const showErrorToast = (error: string) => {
 		toast.error(`${error}`, {
 			position: toast.POSITION.TOP_CENTER,
 		});
 	};
 
-	const showSuccessToast = (message) => {
+	const showSuccessToast = (message: string) => {
 		toast.success(`${message}`, {
 			position: toast.POSITION.TOP_CENTER,
 		});
 	};
 
 	/* Router Dom functions */
-	const handleRedirect = (redirectTo) => {
+	const handleRedirect = (redirectTo: string) => {
 		navigate(`/${redirectTo}`);
 	};
 
 	/* API */
-	function userLogin(user) {
+	function userLogin(user: i.LoginUser) {
 		try {
 			API.post("/sessions", user).then((res) => {
 				localStorage.clear();
@@ -93,7 +93,7 @@ const UserProvider = ({ children }) => {
 		}
 	}
 
-	function userRegister(user) {
+	function userRegister(user: i.RegisterUser) {
 		API.post("/users", user)
 			.then((res) => {
 				localStorage.clear();
@@ -113,7 +113,7 @@ const UserProvider = ({ children }) => {
 			);
 	}
 
-	const addTech = (tech) => {
+	const addTech = (tech: i.NewTech) => {
 		try {
 			API.post("/users/techs", tech, config);
 			//showSuccessToast("Tecnologia adicionada com sucesso!");
@@ -122,7 +122,7 @@ const UserProvider = ({ children }) => {
 		}
 	};
 
-	function deleteTech(id) {
+	function deleteTech(id: string) {
 		try {
 			API.delete(`/users/techs/${id}`, config);
 			showSuccessToast("Tecnologia deletada com sucesso!");
