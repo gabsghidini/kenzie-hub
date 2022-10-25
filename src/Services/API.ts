@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
-const API = axios.create({
+const API: AxiosInstance = axios.create({
 	baseURL: "https://kenziehub.herokuapp.com/",
 	timeout: 5000,
 });

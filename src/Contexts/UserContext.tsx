@@ -1,8 +1,8 @@
+import { AxiosError } from "axios";
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../Services/API";
-import React from "react";
 import * as i from "./types";
 
 export const UserContext = createContext<i.UserProviderData>(
@@ -12,33 +12,21 @@ export const UserContext = createContext<i.UserProviderData>(
 const UserProvider = ({ children }: i.UserProviderProps) => {
 	const [user, setUser] = useState<i.User>({} as i.User);
 	const [token, setToken] = useState<string>();
-	const [isUpdating, setIsUpdating] = useState(false);
+	const [isUpdating, setIsUpdating] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(true);
+	const navigate = useNavigate();
 
 	const config = {
 		headers: { Authorization: `Bearer ${token}` },
 	};
-	const [loading, setLoading] = useState(true);
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		async function updateUser() {
-			const storageToken = localStorage.getItem("@TOKEN");
-
-			if (storageToken) {
-				try {
-					API.defaults.headers.Authorization = `Bearer ${storageToken}`;
-
-					const { data } = await API.get("/profile");
-
-					setUser(data);
-				} catch (error) {
-					console.error(error);
-				}
+			const token = localStorage.getItem("@TOKEN");
+			if (token) {
+				handleRedirect("dashboard");
 			}
-
-			setLoading(false);
 		}
-
 		updateUser();
 	}, []);
 
@@ -61,85 +49,134 @@ const UserProvider = ({ children }: i.UserProviderProps) => {
 	};
 
 	/* API */
-	function userLogin(user: i.LoginUser) {
+	async function userLogin(user: i.LoginUser) {
 		try {
-			API.post("/sessions", user).then((res) => {
-				localStorage.clear();
-
-				const user = res.data.user;
-				const token = res.data.token;
-				const userID = user.id;
-				const techs = user.techs;
-				setToken(token);
-				setUser(user);
-
-				localStorage.setItem("@User", JSON.stringify(user));
-				localStorage.setItem("@TOKEN", token);
-				localStorage.setItem("@UserID", userID);
-				localStorage.setItem("@Techs", JSON.stringify(techs));
-
-				showSuccessToast(
-					"Login feito com sucesso! Você será redirecionado para a página inicial em até 5 segundos."
-				);
-
-				setTimeout(() => {
-					handleRedirect("dashboard");
-				}, 3000);
-			});
-		} catch (error) {
-			showErrorToast(
-				"Email ou senha incorretos, verifique os dados e tente novamente."
+			const response: i.LoginUserResponse = await API.post(
+				"/sessions",
+				user
 			);
+
+			localStorage.clear();
+
+			const data = response.data;
+
+			setToken(data.token);
+			setUser(data.user);
+
+			localStorage.setItem("@TOKEN", data.token);
+			localStorage.setItem("@User", JSON.stringify(data.user));
+			localStorage.setItem("@UserID", data.user.id);
+			localStorage.setItem("@Techs", JSON.stringify(data.user.techs));
+
+			showSuccessToast("Login realizado com sucesso!");
+
+			handleRedirect("dashboard");
+		} catch (error) {
+			const err = error as i.Error;
+			if (err.response.status === 500) {
+				showErrorToast(
+					"Erro interno do servidor, tente novamente mais tarde."
+				);
+			} else if (err.response.status === 400) {
+				showErrorToast(
+					"Erro ao cadastrar usuário: dados inválidos, verifique seu email e senha."
+				);
+			} else {
+				showErrorToast(
+					"Erro ao cadastrar usuário, verifique se os dados estão corretos."
+				);
+			}
 		}
 	}
 
-	function userRegister(user: i.RegisterUser) {
-		API.post("/users", user)
-			.then((res) => {
-				localStorage.clear();
-				localStorage.setItem("@User", res.data.user);
-				showSuccessToast(
-					"Registro feito com sucesso, você será redirecionado ao login em até 3 segundos."
-				);
-
-				setTimeout(() => {
-					handleRedirect("");
-				}, 3000);
-			})
-			.catch((error) =>
-				showErrorToast(
-					"Opa, verifique se todos os campos estão preenchidos ou se o email já não existe."
-				)
+	async function userRegister(user: i.RegisterUser) {
+		try {
+			const response: i.RegisterUserResponse = await API.post(
+				"/users",
+				user
 			);
+			localStorage.clear();
+
+			if (response) {
+				showSuccessToast(
+					"Cadastro realizado com sucesso! Você já pode fazer login."
+				);
+			}
+		} catch (error) {
+			const err = error as i.Error;
+			if (err.response.status === 500) {
+				showErrorToast(
+					"Erro interno do servidor, tente novamente mais tarde."
+				);
+			} else if (err.response.status === 401) {
+				showErrorToast(
+					"Erro ao cadastrar usuário: email já cadastrado."
+				);
+			} else if (err.response.status === 400) {
+				showErrorToast(
+					"Erro ao cadastrar usuário: dados inválidos, verifique se todos os dados estão preenchidos corretamente."
+				);
+			} else {
+				showErrorToast(
+					"Erro ao cadastrar usuário, verifique se os dados estão corretos."
+				);
+			}
+		}
 	}
 
-	const addTech = (tech: i.NewTech) => {
+	const addTech = async (tech: i.NewTech) => {
 		try {
-			API.post("/users/techs", tech, config);
-			//showSuccessToast("Tecnologia adicionada com sucesso!");
+			const response: i.NewTechResponse = await API.post(
+				"/users/techs",
+				tech,
+				config
+			);
+
+			if (response) {
+				return null;
+			}
 		} catch (error) {
-			showErrorToast("Opa, algo deu errado.");
+			const err = error as i.Error;
+			if (err.response.status === 500) {
+				showErrorToast("Erro interno do servidor");
+			} else if (err.response.status === 400) {
+				showErrorToast(
+					"Erro ao adicionar tecnologia, verifique se você já não possui essa tecnologia cadastrada."
+				);
+			}
 		}
 	};
 
-	function deleteTech(id: string) {
+	async function deleteTech(id: string) {
 		try {
-			API.delete(`/users/techs/${id}`, config);
-			showSuccessToast("Tecnologia deletada com sucesso!");
+			const response: i.DeleteTechResponse = await API.delete(
+				`/users/techs/${id}`,
+				config
+			);
+
+			if (response) {
+				showSuccessToast("Tecnologia deletada com sucesso!");
+			}
 		} catch (error) {
-			console.error(error);
+			const err = error as i.Error;
+			if (err.response.status === 500) {
+				showErrorToast("Erro interno do servidor");
+			}
 		}
 	}
 
 	function updateTechs() {
 		setIsUpdating(true);
 		try {
-			API.get("/profile", config).then((res) =>
+			API.get<i.User>("/profile", config).then((res) =>
 				localStorage.setItem("@Techs", JSON.stringify(res.data.techs))
 			);
 			setIsUpdating(false);
 		} catch (error) {
-			console.error(error);
+			const err = error as i.Error;
+			if (err.response.status === 500) {
+				showErrorToast("Erro interno do servidor");
+			}
 		}
 	}
 

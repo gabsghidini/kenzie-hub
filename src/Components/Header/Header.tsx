@@ -1,7 +1,8 @@
 import * as S from "./styles";
+import * as i from "../../Contexts/types";
 
 const Header = () => {
-	const user = JSON.parse(localStorage.getItem("@User"));
+	const user: i.User = JSON.parse(localStorage.getItem("@User"));
 	const name = user.name;
 	const module = user.course_module;
 
